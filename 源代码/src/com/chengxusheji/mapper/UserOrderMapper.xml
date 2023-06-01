@@ -1,0 +1,51 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.UserOrderMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加用户预约记录 -->
+	<insert id="addUserOrder" parameterType="userOrder">
+		insert into t_userOrder(barberObj,serviceItemObj,orderDate,orderTime,userObj,addTime,orderMemo,shzt,replyContent) values 
+		(#{barberObj.barberId},#{serviceItemObj.itemId},#{orderDate},#{orderTime},#{userObj.user_name},#{addTime},#{orderMemo},#{shzt},#{replyContent})
+	</insert>
+
+	<!-- 按照查询条件分页查询用户预约记录 -->
+	<select id="queryUserOrder" resultMap="userOrderMap" >
+		select t_userOrder.* from t_userOrder,t_barber,t_serviceItem,t_userInfo ${where} and t_userOrder.barberObj = t_barber.barberId and t_userOrder.serviceItemObj = t_serviceItem.itemId and t_userOrder.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="userOrderMap" type="userOrder">
+        <id property="orderId" column="orderId" />
+        <association property="barberObj" column="barberObj" select="com.chengxusheji.mapper.BarberMapper.getBarber" />
+        <association property="serviceItemObj" column="serviceItemObj" select="com.chengxusheji.mapper.ServiceItemMapper.getServiceItem" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有用户预约记录 -->
+	<select id="queryUserOrderList" resultMap="userOrderMap" >
+		select t_userOrder.* from t_userOrder,t_barber,t_serviceItem,t_userInfo ${where} and t_userOrder.barberObj = t_barber.barberId and t_userOrder.serviceItemObj = t_serviceItem.itemId and t_userOrder.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的用户预约记录数 -->
+	<select id="queryUserOrderCount" resultType="int">
+		select count(*) from t_userOrder,t_barber,t_serviceItem,t_userInfo ${where} and t_userOrder.barberObj = t_barber.barberId and t_userOrder.serviceItemObj = t_serviceItem.itemId and t_userOrder.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个用户预约记录 -->
+	<select id="getUserOrder" parameterType="int" resultMap="userOrderMap">
+		select * from t_userOrder where t_userOrder.orderId = #{orderId}
+	</select>
+
+	<!-- 更新用户预约记录 -->
+	<update id="updateUserOrder" parameterType="userOrder">
+		update t_userOrder set barberObj=#{barberObj.barberId},serviceItemObj=#{serviceItemObj.itemId},orderDate=#{orderDate},orderTime=#{orderTime},userObj=#{userObj.user_name},addTime=#{addTime},orderMemo=#{orderMemo},shzt=#{shzt},replyContent=#{replyContent} where orderId = #{orderId}
+	</update>
+
+	<!-- 删除用户预约记录 -->
+	<delete id="deleteUserOrder" parameterType="int">
+		delete from t_userOrder where orderId=#{orderId}
+	</delete>
+
+</mapper>

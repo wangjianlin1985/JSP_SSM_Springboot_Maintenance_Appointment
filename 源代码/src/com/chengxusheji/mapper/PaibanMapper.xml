@@ -1,0 +1,49 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.PaibanMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加维修人员排班记录 -->
+	<insert id="addPaiban" parameterType="paiban">
+		insert into t_paiban(barberObj,paibanDate,workTime,paibanMemo) values 
+		(#{barberObj.barberId},#{paibanDate},#{workTime},#{paibanMemo})
+	</insert>
+
+	<!-- 按照查询条件分页查询维修人员排班记录 -->
+	<select id="queryPaiban" resultMap="paibanMap" >
+		select t_paiban.* from t_paiban,t_barber ${where} and t_paiban.barberObj = t_barber.barberId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="paibanMap" type="paiban">
+        <id property="paibanId" column="paibanId" />
+        <association property="barberObj" column="barberObj" select="com.chengxusheji.mapper.BarberMapper.getBarber" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有维修人员排班记录 -->
+	<select id="queryPaibanList" resultMap="paibanMap" >
+		select t_paiban.* from t_paiban,t_barber ${where} and t_paiban.barberObj = t_barber.barberId
+	</select>
+
+    <!-- 按照查询条件的维修人员排班记录数 -->
+	<select id="queryPaibanCount" resultType="int">
+		select count(*) from t_paiban,t_barber ${where} and t_paiban.barberObj = t_barber.barberId
+	</select>
+
+	<!-- 根据主键查询某个维修人员排班记录 -->
+	<select id="getPaiban" parameterType="int" resultMap="paibanMap">
+		select * from t_paiban where t_paiban.paibanId = #{paibanId}
+	</select>
+
+	<!-- 更新维修人员排班记录 -->
+	<update id="updatePaiban" parameterType="paiban">
+		update t_paiban set barberObj=#{barberObj.barberId},paibanDate=#{paibanDate},workTime=#{workTime},paibanMemo=#{paibanMemo} where paibanId = #{paibanId}
+	</update>
+
+	<!-- 删除维修人员排班记录 -->
+	<delete id="deletePaiban" parameterType="int">
+		delete from t_paiban where paibanId=#{paibanId}
+	</delete>
+
+</mapper>
